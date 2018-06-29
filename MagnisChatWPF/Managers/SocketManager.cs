@@ -50,7 +50,7 @@ namespace MagnisChatWPF.Managers
             }
             catch(Exception ex)
             {
-                Failed(ex.Message);
+                Failed?.Invoke(ex.Message);
             }
             
         }
@@ -139,7 +139,7 @@ namespace MagnisChatWPF.Managers
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                Failed?.Invoke(ex.Message);
             }
         }
     }

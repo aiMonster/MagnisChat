@@ -10,6 +10,7 @@ namespace MagnisChatWPF.Interfaces
     public interface IFileManager
     {
         event Action<int> PartDownloaded;
+        event Action<string> Failed;
         void Authorize(string token);
         void Upload(FileMessageRequest file, Guid roomId);
         void Download(FileDTO file);

@@ -71,6 +71,8 @@ namespace MagnisChatWPF.ViewModels
             _httpManager.Authorize(_httpToken.Token);
             _fileManager.Authorize(_httpToken.Token);
 
+            _fileManager.Failed += (m) => ShowNotification(m);
+
             AddRoomCommand = new Command(obj => AddRoom());
             SendMessageCommand = new Command(obj => SendMessage());
             SendFileCommand = new Command(async obj => await SendFile());
@@ -271,7 +273,7 @@ namespace MagnisChatWPF.ViewModels
         }
 
         private async void SendMessage()
-        {
+        {            
             if (SelectedMyRoom == null)
             {
                 ShowNotification("Room not selected");
@@ -517,8 +519,14 @@ namespace MagnisChatWPF.ViewModels
 
         private void ShowNotification(string message)
         {
-            var window = new NotificationWindow(message);
-            window.ShowDialog();
+            var thread = new Thread(new ParameterizedThreadStart(param =>
+            {
+                var window = new NotificationWindow(message);
+                window.ShowDialog();
+            }));
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

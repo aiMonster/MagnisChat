@@ -17,6 +17,7 @@ namespace MagnisChatWPF.Interfaces
         void Connect();
 
         event Action Authorized;
+        event Action<string> Failed;
         event SocketMessage<RoomDTO> RoomCreated;
         event SocketMessage<MessageDTO> NewMessageReceived;        
         event SocketMessage<RoomParticipatedDTO> RoomParticipated;

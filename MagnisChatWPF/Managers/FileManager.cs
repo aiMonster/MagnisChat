@@ -49,7 +49,7 @@ namespace MagnisChatWPF.Managers
             var response = await _httpManager.PostAsync<FileDTO>($"api/Rooms/{roomId.ToString()}/FileMessages", file);
             if(response.Error != null)
             {
-                Failed(response.Error.ErrorDescription);
+                Failed?.Invoke(response.Error.ErrorDescription);
                 return;
             }
                        
@@ -90,7 +90,7 @@ namespace MagnisChatWPF.Managers
                 var resp = await _httpManager.PostAsync<bool>($"api/Files/{response.Data.Id}", request);
                 if (resp.Error != null)
                 {
-                    Failed(resp.Error.ErrorDescription);
+                    Failed?.Invoke(resp.Error.ErrorDescription);
                     return;
                 }
                 
@@ -111,7 +111,7 @@ namespace MagnisChatWPF.Managers
                 var filePartResponse = await _httpManager.GetAsync<FilePartDTO>($"api/Files/{file.Id}/DownloadPart/{part}");
                 if (filePartResponse.Error != null)
                 {
-                    Failed(filePartResponse.Error.ErrorDescription);
+                    Failed?.Invoke(filePartResponse.Error.ErrorDescription);
                     return;
                 }
 

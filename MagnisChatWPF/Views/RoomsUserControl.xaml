@@ -28,7 +28,7 @@
             <RowDefinition Height="25"/>
             <RowDefinition Height="4*"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="40"/>
+            <RowDefinition Height="60"/>
         </Grid.RowDefinitions>
 
         <Menu FontSize="18">
@@ -115,18 +115,27 @@
         <Grid Grid.Row="2" Grid.Column="0"   Background="LightYellow">
             <Label Content="Create new room:" FontSize="18" HorizontalAlignment="Center" Padding="2"/>
             <StackPanel  Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBox HorizontalAlignment="Stretch" MinWidth="150" Height="30" Margin="5" Text="{Binding NewRoomTitle}" FontSize="18"/>
+                <TextBox HorizontalAlignment="Stretch" MinWidth="150" Height="30" Margin="5" Text="{Binding NewRoomTitle, UpdateSourceTrigger=PropertyChanged}" FontSize="18">
+                    <TextBox.InputBindings>
+                        <KeyBinding Command="{Binding AddRoomCommand}" Key="Enter" />
+                    </TextBox.InputBindings>
+                </TextBox>
                 <Button Command="{Binding AddRoomCommand}" Background="LightGreen" FontSize="16" Margin="5" Padding="2" Height="30">
                     <Button.Content>
                         <Image Source="C:\MagnisChat\MagnisChatWPF\Icons\group.png" />
                     </Button.Content>
                 </Button>
             </StackPanel>
-        </Grid>   
-        
-        
-        <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" >
-            <TextBox TextWrapping="Wrap"  Width="300" Height="50" Margin="5" Text="{Binding MessageContent}" FontSize="18"/>
+        </Grid>
+
+        <StackPanel Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" >
+        <StackPanel Orientation="Horizontal">
+            <TextBox TextWrapping="Wrap"  Width="300" Height="50" Margin="5" Text="{Binding MessageContent, UpdateSourceTrigger=PropertyChanged}" FontSize="18">
+                <TextBox.InputBindings>
+                    <KeyBinding Command="{Binding SendMessageCommand}" Key="Enter" />
+                </TextBox.InputBindings>
+            </TextBox>         
+
             <Button Command="{Binding SendMessageCommand}" Height="50" Margin="5" Padding="10,5" Background="LightGreen" FontSize="20">
                 <Button.Content>
                     <Image Source="C:\MagnisChat\MagnisChatWPF\Icons\plane.png"/>
@@ -138,9 +147,15 @@
                 </Button.Content>
             </Button>
         </StackPanel>
-        
+              <Label HorizontalAlignment="Center" Content="Press Enter to send" FontSize="20"/>
+        </StackPanel>
+
         <TextBlock Visibility="Hidden" Name="userIdTb" Text="{Binding UserId}" Grid.Column="1" />
-        <TextBlock Grid.Row="3" Text="Downloadings: " HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20"/>
-        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Downloads}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20"/>
+
+        <StackPanel Grid.Row="3"  VerticalAlignment="Center">
+            <TextBlock Text="Downloadings: " HorizontalAlignment="Center" FontSize="20"/>
+            <TextBlock Text="{Binding Downloads}" HorizontalAlignment="Center" FontSize="20"/>
+        </StackPanel>
+        
     </Grid>
 </UserControl>
