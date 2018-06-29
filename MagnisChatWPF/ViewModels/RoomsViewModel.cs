@@ -56,7 +56,7 @@ namespace MagnisChatWPF.ViewModels
         public ICommand AddRoomCommand { get; protected set; }
         public ICommand SendMessageCommand { get; protected set; }
         public ICommand SendFileCommand { get; protected set; }
-        public ICommand DownloadFileCommand { get; protected set; }
+        public ICommand CopyOrDownloadCommand { get; protected set; }
         public ICommand ParticipateRoomCommand { get; protected set; }
         public ICommand LeaveRoomCommand { get; protected set; }
         public ICommand LogOutCommand { get; protected set; }
@@ -73,8 +73,8 @@ namespace MagnisChatWPF.ViewModels
 
             AddRoomCommand = new Command(obj => AddRoom());
             SendMessageCommand = new Command(obj => SendMessage());
-            SendFileCommand = new Command(async obj => await SendFile());  
-            DownloadFileCommand = new Command(obj => DownloadFile());
+            SendFileCommand = new Command(async obj => await SendFile());
+            CopyOrDownloadCommand = new Command(obj => CopyOrDownload());
             ParticipateRoomCommand = new Command(obj => Participate());
             LeaveRoomCommand = new Command(obj => Leave());
             LogOutCommand = new Command(obj => LogOut());
@@ -220,7 +220,26 @@ namespace MagnisChatWPF.ViewModels
             }));
             thread.SetApartmentState(ApartmentState.STA);
             thread.Start();
-        }        
+        }
+
+        private async Task CopyOrDownload()
+        {
+            if(_selectedMessage.Type == MessageTypes.File)
+            {
+                DownloadFile();
+            }
+            else if(_selectedMessage.Type == MessageTypes.Text)
+            {
+                CopyMessage();
+            }
+        }
+
+        private async void CopyMessage()
+        {
+            var message = _selectedMessage.Content;
+            Clipboard.SetText(message);
+            //MessageBox.Show(message);
+        }
 
         private async void DownloadFile()
         {
@@ -305,6 +324,23 @@ namespace MagnisChatWPF.ViewModels
 
         #region Properties
 
+        public string MessageCommandHeader
+        {
+            get
+            {
+                if(_selectedMessage.Type == MessageTypes.File)
+                {
+                    return "Download";
+                }
+                else if(_selectedMessage.Type == MessageTypes.Text)
+                {
+                    return "Copy";
+                }
+
+                return "Undefined";                
+            }            
+        }
+
         public RoomModel SelectedMyRoom
         {
             get { return _selectedMyRoom; }
@@ -351,6 +387,7 @@ namespace MagnisChatWPF.ViewModels
             {
                 _selectedMessage = value;               
                 OnPropertyChanged(nameof(SelectedMessage));
+                OnPropertyChanged(nameof(MessageCommandHeader));
             }
         }
 

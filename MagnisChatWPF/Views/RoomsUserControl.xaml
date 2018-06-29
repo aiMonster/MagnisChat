@@ -105,7 +105,7 @@
             </ListBox.ItemTemplate>
             <ListBox.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Download" Command="{Binding DownloadFileCommand}"/>
+                    <MenuItem Header="{Binding MessageCommandHeader}" Command="{Binding CopyOrDownloadCommand}"/>
                 </ContextMenu>
             </ListBox.ContextMenu>
         </ListBox>   
