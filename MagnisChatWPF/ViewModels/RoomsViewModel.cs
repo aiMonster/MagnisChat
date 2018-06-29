@@ -58,6 +58,7 @@ namespace MagnisChatWPF.ViewModels
         public ICommand SendFileCommand { get; protected set; }
         public ICommand DownloadFileCommand { get; protected set; }
         public ICommand ParticipateRoomCommand { get; protected set; }
+        public ICommand LeaveRoomCommand { get; protected set; }
         public ICommand LogOutCommand { get; protected set; }
 
         public event Action LogOut;
@@ -75,6 +76,7 @@ namespace MagnisChatWPF.ViewModels
             SendFileCommand = new Command(async obj => await SendFile());  
             DownloadFileCommand = new Command(obj => DownloadFile());
             ParticipateRoomCommand = new Command(obj => Participate());
+            LeaveRoomCommand = new Command(obj => Leave());
             LogOutCommand = new Command(obj => LogOut());
 
             LoadRooms();                  
@@ -163,6 +165,20 @@ namespace MagnisChatWPF.ViewModels
                 var room = OtherRooms.Where(r => r.Id == roomParticipatedDTO.RoomId).FirstOrDefault();
                 ChangeData(delegate { MyRooms.Add(room); OtherRooms.Remove(room); });
             } 
+        }
+
+        public void OnRoomLeft(RoomParticipatedDTO roomParticipatedDTO)
+        {
+            if (_httpToken.UserId == roomParticipatedDTO.UserId.ToString())
+            {
+                var room = MyRooms.Where(r => r.Id == roomParticipatedDTO.RoomId).FirstOrDefault();
+                ChangeData(delegate 
+                {
+                    OtherRooms.Add(room);
+                    MyRooms.Remove(room);                    
+                    Messages.Clear();                    
+                });
+            }
         }
         #endregion       
 
@@ -270,18 +286,36 @@ namespace MagnisChatWPF.ViewModels
                 return;
             }
         }
+
+        private async void Leave()
+        {
+            if (SelectedMyRoom == null)
+            {
+                return;
+            }
+
+            var resp = await _httpManager.PutAsync<bool>($"api/Rooms/{SelectedMyRoom.Id}/Leave");
+            if (resp.Error != null)
+            {
+                ShowNotification(resp.Error.ErrorDescription);
+                return;
+            }
+        }
         #endregion
 
         #region Properties
-       
+
         public RoomModel SelectedMyRoom
         {
             get { return _selectedMyRoom; }
             set
             {
                 _selectedMyRoom = value;
-                LoadMessagesAndFiles(value.Id);
-                OnPropertyChanged("SelectedMyRoom");
+                if(value != null)
+                {
+                    LoadMessagesAndFiles(value.Id);
+                }                
+                OnPropertyChanged(nameof(SelectedMyRoom));
             }
         }
 
@@ -291,7 +325,7 @@ namespace MagnisChatWPF.ViewModels
             set
             {
                 downloads = value;
-                OnPropertyChanged("Downloads");
+                OnPropertyChanged(nameof(Downloads));
             }
         }
 
@@ -306,7 +340,7 @@ namespace MagnisChatWPF.ViewModels
             set
             {
                 _selectedAnotherRoom = value;                
-                OnPropertyChanged("SelectedFromAllRoom");
+                OnPropertyChanged(nameof(SelectedAnotherRoom));
             }
         }
                
@@ -316,7 +350,7 @@ namespace MagnisChatWPF.ViewModels
             set
             {
                 _selectedMessage = value;               
-                OnPropertyChanged("SelectedMessage");
+                OnPropertyChanged(nameof(SelectedMessage));
             }
         }
 
@@ -326,7 +360,7 @@ namespace MagnisChatWPF.ViewModels
             set
             {
                 newRoomTitle = value;
-                OnPropertyChanged("NewRoomTitle");
+                OnPropertyChanged(nameof(NewRoomTitle));
             }
         }
 
@@ -336,7 +370,7 @@ namespace MagnisChatWPF.ViewModels
             set
             {
                 messageContent = value;
-                OnPropertyChanged("MessageContent");
+                OnPropertyChanged(nameof(MessageContent));
             }
         }
 

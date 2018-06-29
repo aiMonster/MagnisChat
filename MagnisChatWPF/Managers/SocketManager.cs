@@ -26,6 +26,7 @@ namespace MagnisChatWPF.Managers
         public event SocketMessage<RoomDTO> RoomCreated;
         public event SocketMessage<MessageDTO> NewMessageReceived;       
         public event SocketMessage<RoomParticipatedDTO> RoomParticipated;
+        public event SocketMessage<RoomParticipatedDTO> RoomLeft;
         public event SocketMessage<FileStatusDTO> FileStatusChanged;
         
         public SocketManager()
@@ -76,7 +77,12 @@ namespace MagnisChatWPF.Managers
                 RoomParticipated -= (SocketMessage<RoomParticipatedDTO>)a;
             }
 
-            foreach(var a in FileStatusChanged.GetInvocationList())
+            foreach (var a in RoomLeft.GetInvocationList())
+            {
+                RoomLeft -= (SocketMessage<RoomParticipatedDTO>)a;
+            }
+
+            foreach (var a in FileStatusChanged.GetInvocationList())
             {
                 FileStatusChanged -= (SocketMessage<FileStatusDTO>)a;
             }
@@ -119,6 +125,11 @@ namespace MagnisChatWPF.Managers
                 {
                     var response = JsonConvert.DeserializeObject<SocketResponseDTO<RoomParticipatedDTO>>(message);
                     RoomParticipated?.Invoke(response);
+                }
+                else if(baseMessage.Type == SocketMessageTypes.RoomLeft)
+                {
+                    var response = JsonConvert.DeserializeObject<SocketResponseDTO<RoomParticipatedDTO>>(message);
+                    RoomLeft?.Invoke(response);
                 }
                 else if(baseMessage.Type == SocketMessageTypes.FileStatusChanged)
                 {

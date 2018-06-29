@@ -71,8 +71,21 @@ namespace MagnisChatAPI.Controllers
 
             return Ok(response);
         }
+
+        [HttpPut("{id}/Leave")]
+        public async Task<IActionResult> LeaveRoom([FromRoute]Guid id)
+        {
+            var response = await _roomManager.LeaveRoomAsync(id, GetUserId());
+
+            if (response.Error != null)
+            {
+                return StatusCode(response.Error.ErrorCode, response);
+            }
+
+            return Ok(response);
+        }
         #endregion
-        
+
         #region Messages
         [HttpPost("{id}/TextMessages")]
         public async Task<IActionResult> SendTextMessage([FromRoute] Guid id, [FromBody]TextMessageRequest request)

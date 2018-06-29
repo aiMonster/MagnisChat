@@ -11,6 +11,7 @@ namespace Common.Enums
         LogInRequest,        
         RoomCreated, 
         RoomParticipated,
+        RoomLeft,
         NewMessage, 
         FileStatusChanged,       
         UnknownRequest,

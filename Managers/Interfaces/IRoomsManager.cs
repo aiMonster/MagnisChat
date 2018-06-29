@@ -15,5 +15,6 @@ namespace Managers.Interfaces
         ResponseDTO<IEnumerable<RoomDTO>> GetUserRooms(Guid userId);
         ResponseDTO<IEnumerable<RoomDTO>> GetOtherRooms(Guid userId);
         Task<ResponseDTO<bool>> ParticipateRoomAsync(Guid roomId, Guid userId);
+        Task<ResponseDTO<bool>> LeaveRoomAsync(Guid roomId, Guid userId);
     }
 }

@@ -99,5 +99,34 @@ namespace Managers
             return response;
         }
 
+        public async Task<ResponseDTO<bool>> LeaveRoomAsync(Guid roomId, Guid userId)
+        {
+            var response = new ResponseDTO<bool>();
+            var room = _context.Rooms.Where(r => r.Id == roomId).FirstOrDefault();
+            if (room == null)
+            {
+                response.Error = new Error(404, "Room not found");
+                return response;
+            }
+
+            if (!room.Participants.Contains(userId))
+            {
+                response.Error = new Error(409, "You are not participating");
+                return response;
+            }
+
+            room.Participants.Remove(userId);
+            await _chatHandler.SendForAllAuthorizedUsers(
+                new SocketResponseDTO<RoomParticipatedDTO>
+                {
+                    Model = new RoomParticipatedDTO { RoomId = roomId, UserId = userId },
+                    Type = SocketMessageTypes.RoomLeft
+                });
+
+            response.Data = true;
+            return response;
+        }
+
+
     }
 }

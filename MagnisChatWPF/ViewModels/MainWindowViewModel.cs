@@ -57,6 +57,7 @@ namespace MagnisChatWPF.ViewModels
             _socketManager.RoomCreated += (sr) => _roomsViewModel.OnRoomCreated(sr.Model);
             _socketManager.NewMessageReceived += (sr) => _roomsViewModel.OnMessageReceived(sr.Model);            
             _socketManager.RoomParticipated += (sr) => _roomsViewModel.OnRoomParticipated(sr.Model);
+            _socketManager.RoomLeft += (sr) => _roomsViewModel.OnRoomLeft(sr.Model);
             _socketManager.FileStatusChanged += (sr) => _roomsViewModel.OnFileStatusChanged(sr.Model);
         }
 

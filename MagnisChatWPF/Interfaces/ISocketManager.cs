@@ -20,6 +20,7 @@ namespace MagnisChatWPF.Interfaces
         event SocketMessage<RoomDTO> RoomCreated;
         event SocketMessage<MessageDTO> NewMessageReceived;        
         event SocketMessage<RoomParticipatedDTO> RoomParticipated;
+        event SocketMessage<RoomParticipatedDTO> RoomLeft;
         event SocketMessage<FileStatusDTO> FileStatusChanged;
     }
 }

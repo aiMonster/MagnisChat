@@ -44,7 +44,12 @@
                          Background="LightYellow" 
                          ItemsSource="{Binding MyRooms}"       
                         ItemTemplate="{StaticResource roomsListTemplate}">
-                    
+                    <ListBox.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Leave" Command="{Binding LeaveRoomCommand}"/>
+                        </ContextMenu>
+                    </ListBox.ContextMenu>
+
                 </ListBox>
             </TabItem>
             
