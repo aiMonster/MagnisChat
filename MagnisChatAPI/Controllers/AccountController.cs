@@ -38,6 +38,24 @@ namespace MagnisChatAPI.Controllers
             return Ok(new ResponseDTO<TokenResponse>() { Data = response });
         }
 
+        [HttpPost("Register")]
+        public async Task<IActionResult> Register([FromBody]RegistrationRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var response = await _accountManger.Register(request);
+            if (response.Error != null)
+            {
+                return StatusCode(response.Error.ErrorCode, response);
+            }
+
+            return Ok(response);
+        }
+
+
         [Authorize]
         [HttpPost("SocketToken")]        
         public async Task<IActionResult> SocketToken()

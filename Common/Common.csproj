@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DTO\Account\LoginRequest.cs" />
+    <Compile Include="DTO\Account\RegistrationRequest.cs" />
     <Compile Include="DTO\Account\UserProfile.cs" />
     <Compile Include="DTO\Messages\FileDTO.cs" />
     <Compile Include="DTO\Messages\FileMessageRequest.cs" />

@@ -16,5 +16,6 @@ namespace Managers.Interfaces
         Task<ResponseDTO<ClaimsIdentity>> GetIdentityAsync(string login, string password);
         Task<ResponseDTO<SocketTokenDTO>> GetSocketTokenAsync(Guid userId);
         Task<ResponseDTO<UserProfile>> GetUserAsync(Guid userId);
+        Task<ResponseDTO<bool>> Register(RegistrationRequest request);
     }
 }

@@ -106,5 +106,23 @@ namespace Managers
             response.Data = new UserProfile(user);
             return response;
         }
+
+        public async Task<ResponseDTO<bool>> Register(RegistrationRequest request)
+        {
+            var response = new ResponseDTO<bool>();
+
+            var isNickTaken = _context.Users.Where(u => u.Login == request.Login).Count();
+            if(isNickTaken != 0)
+            {
+                response.Error = new Error(409, "Nick name is taken");
+                return response;
+            }
+
+            await _context.Users.AddAsync(new UserEntity(request));
+            await _context.SaveChangesAsync();
+
+            response.Data = true;
+            return response;
+        }
     }
 }

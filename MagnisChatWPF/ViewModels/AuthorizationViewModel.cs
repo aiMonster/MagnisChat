@@ -31,12 +31,14 @@ namespace MagnisChatWPF.ViewModels
 
         public event Action<TokenResponse, Guid> Authorized;
 
-        public ICommand AuthorizeCommand { get; protected set; }        
+        public ICommand AuthorizeCommand { get; protected set; }   
+        public ICommand RegisterCommand { get; protected set; }
 
         public AuthorizationViewModel()
         {
             BuildImports();
-            AuthorizeCommand = new Command(obj => Authorize(obj));            
+            AuthorizeCommand = new Command(obj => Authorize(obj));
+            RegisterCommand = new Command(obj => Register(obj));
             IsActive = true;           
         }
 
@@ -131,7 +133,44 @@ namespace MagnisChatWPF.ViewModels
             //unblocking btn Sign in
             IsActive = true;            
         }
-        
+
+        private async void Register(object parameter)
+        {
+            ErrorLabel = "";
+            var passwordBox = parameter as PasswordBox;
+            var password = passwordBox.Password;
+
+            if (String.IsNullOrEmpty(login) || String.IsNullOrEmpty(password))
+            {
+                ErrorLabel = "Fill all fields!";
+                return;
+            }
+
+            //blocking btn Sign in
+            IsActive = false;
+
+            var response = await _httpManager.PostAsync<bool>("api/Account/Register",
+                new LoginRequest() { Login = login, Password = password });
+
+            if (response.Error != null)
+            {
+                ErrorLabel = response.Error.ErrorDescription;
+                IsActive = true;
+                return;
+            }
+
+            if (response.Data != true)
+            {
+                ErrorLabel = "Unknown error, try again";
+                IsActive = true;
+                return;
+            }
+
+            ErrorLabel = "You've been successfully registered";
+            passwordBox.Password = "";
+            //unblocking btn Sign in
+            IsActive = true;
+        }
         #region Properties
 
         public bool RememberMe
