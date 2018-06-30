@@ -1,10 +1,12 @@
 ﻿using Common.DTO.Communication;
 using Common.DTO.Messages;
 using Common.DTO.Sockets;
+using Common.Entities;
 using Common.Enums;
 using DataAccessLayer;
 using Managers.Interfaces;
 using Managers.WebSockets;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -29,20 +31,20 @@ namespace Managers
         public async Task<ResponseDTO<FileDTO>> SendFileMessageAsync(FileMessageRequest request, Guid roomId, Guid userId)
         {
             var response = new ResponseDTO<FileDTO>();
-            var room = _context.Rooms.Where(r => r.Id == roomId).FirstOrDefault();
+            var room = await _context.Rooms.FirstOrDefaultAsync(r => r.Id == roomId);
             if (room == null)
             {
                 response.Error = new Error(404, "Room not found");
                 return response;
             }
-            if (!room.Participants.Contains(userId))
+            if (!room.Participants.Select(p => p.UserId).Contains(userId))
             {
                 response.Error = new Error(409, "You can't send message here, because you are not participant");
                 return response;
             }
 
             var fileId = Guid.NewGuid();
-            var message = new MessageDTO()
+            var message = new MessageEntity()
             {
                 Id = Guid.NewGuid(),
                 SenderId = userId,
@@ -52,7 +54,7 @@ namespace Managers
                 SendingTime = DateTime.UtcNow
             };
 
-            var file = new FileDTO()
+            var file = new FileEntity()
             {
                 Id = fileId,
                 MessageId = message.Id,
@@ -64,39 +66,40 @@ namespace Managers
                 Parts = request.Parts                 
             };
 
-            _context.Messages.Add(message);
-            _context.Files.Add(file);
+            await _context.Messages.AddAsync(message);
+            await _context.Files.AddAsync(file);
+            await _context.SaveChangesAsync();
 
             var socketDTO = new SocketResponseDTO<MessageDTO>
                 {
                     Type = SocketMessageTypes.NewMessage,
-                    Model = message
+                    Model = new MessageDTO(message)
                 };
-            foreach (var participantId in room.Participants)
+            foreach (var participantId in room.Participants.Select(p => p.UserId))
             {
                 await _chatHandler.SendMessageByUserId(participantId, socketDTO);
             }
 
-            response.Data = file;
+            response.Data = new FileDTO(file);
             return response;
         }
            
         public async Task<ResponseDTO<bool>> SendTextMessageAsync(TextMessageRequest request, Guid roomId, Guid userId)
         {
             var response = new ResponseDTO<bool>();
-            var room = _context.Rooms.Where(r => r.Id == roomId).FirstOrDefault();
+            var room = await _context.Rooms.FirstOrDefaultAsync(r => r.Id == roomId);
             if(room == null)
             {
                 response.Error = new Error(404, "Room not found");
                 return response;
             }
-            if (!room.Participants.Contains(userId))
+            if (!room.Participants.Select(p => p.UserId).Contains(userId))
             {
                 response.Error = new Error(409, "You can't send message here, because you are not participant");
                 return response;
             }
 
-            var message = new MessageDTO()
+            var message = new MessageEntity()
             {
                 Id = Guid.NewGuid(),
                 SenderId = userId,
@@ -106,13 +109,14 @@ namespace Managers
                 SendingTime = DateTime.UtcNow
             };
 
-            _context.Messages.Add(message);
+            await _context.Messages.AddAsync(message);
+            await _context.SaveChangesAsync();
             var socketDTO = new SocketResponseDTO<MessageDTO>
                 {
-                    Type = SocketMessageTypes.NewMessage, Model = message
+                    Type = SocketMessageTypes.NewMessage, Model = new MessageDTO(message)
                 };
 
-            foreach (var participantId in room.Participants)
+            foreach (var participantId in room.Participants.Select(p => p.UserId))
             {
                 await _chatHandler.SendMessageByUserId(participantId, socketDTO);
             }
@@ -121,11 +125,11 @@ namespace Managers
             return response; 
         }
         
-        public ResponseDTO<IEnumerable<MessageDTO>> GetMessages(Guid roomId)
+        public async Task<ResponseDTO<IEnumerable<MessageDTO>>> GetMessagesAsync(Guid roomId)
         {
             return new ResponseDTO<IEnumerable<MessageDTO>>
                 {
-                    Data = _context.Messages.Where(m => m.RoomId == roomId)
+                    Data = await _context.Messages.Where(m => m.RoomId == roomId).Select(m => new MessageDTO(m)).ToListAsync()
                 };
         }       
     }

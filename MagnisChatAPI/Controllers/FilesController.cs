@@ -21,9 +21,9 @@ namespace MagnisChatAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetFile([FromRoute]Guid id)
+        public async Task<IActionResult> GetFile([FromRoute]Guid id)
         {
-            var response = _fileManager.GetFile(id);
+            var response = await _fileManager.GetFileAsync(id);
 
             if (response.Error != null)
             {
@@ -36,7 +36,7 @@ namespace MagnisChatAPI.Controllers
         [HttpPost("{id}")]
         public async Task<IActionResult> UploadFilePart([FromRoute] Guid id, [FromBody]FilePartDTO file)
         {
-            var response = await _fileManager.UploadPartFile(file, id);
+            var response = await _fileManager.UploadPartFileAsync(file, id);
             if (response.Error != null)
             {
                 return StatusCode(response.Error.ErrorCode, response);
@@ -47,7 +47,7 @@ namespace MagnisChatAPI.Controllers
         [HttpGet("{id}/DownloadPart/{part}")]
         public async Task<IActionResult> DownloadFilePart([FromRoute] Guid id, int part)
         {
-            var response = await _fileManager.DownloadPartFile(id, part);
+            var response = await _fileManager.DownloadPartFileAsync(id, part);
             if (response.Error != null)
             {
                 return StatusCode(response.Error.ErrorCode, response);

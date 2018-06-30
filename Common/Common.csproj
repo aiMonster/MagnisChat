@@ -48,7 +48,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DTO\Account\LoginRequest.cs" />
-    <Compile Include="DTO\Account\UserDTO.cs" />
     <Compile Include="DTO\Account\UserProfile.cs" />
     <Compile Include="DTO\Messages\FileDTO.cs" />
     <Compile Include="DTO\Messages\FileMessageRequest.cs" />
@@ -66,6 +65,12 @@
     <Compile Include="DTO\Communication\Error.cs" />
     <Compile Include="DTO\Communication\ResponseDTO.cs" />
     <Compile Include="DTO\Sockets\BaseMessage.cs" />
+    <Compile Include="Entities\FileEntity.cs" />
+    <Compile Include="Entities\MessageEntity.cs" />
+    <Compile Include="Entities\RoomEntity.cs" />
+    <Compile Include="Entities\RoomParticipants.cs" />
+    <Compile Include="Entities\SocketTokenEntity.cs" />
+    <Compile Include="Entities\UserEntity.cs" />
     <Compile Include="Enums\MessageTypes.cs" />
     <Compile Include="Enums\SocketMessageTypes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -73,5 +78,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

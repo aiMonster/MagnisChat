@@ -21,14 +21,14 @@ namespace MagnisChatAPI.Controllers
         }
 
         [HttpPost("Token")]
-        public IActionResult Token([FromBody]LoginRequest request)
+        public async Task<IActionResult> Token([FromBody]LoginRequest request)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var identity =  _accountManger.GetIdentity(request.Login, request.Password);
+            var identity = await _accountManger.GetIdentityAsync(request.Login, request.Password);
             if (identity.Error != null)
             {
                 return StatusCode(identity.Error.ErrorCode, identity);
@@ -40,18 +40,18 @@ namespace MagnisChatAPI.Controllers
 
         [Authorize]
         [HttpPost("SocketToken")]        
-        public IActionResult SocketToken()
+        public async Task<IActionResult> SocketToken()
         {
             var userId = new Guid(User.Claims.Where(c => c.Type == "Id").FirstOrDefault().Value);
-            var token = _accountManger.GetSocketToken(userId);
+            var token = await _accountManger.GetSocketTokenAsync(userId);
             return Ok(token);
         }
 
         [Authorize]
         [HttpGet("Users/{id}")]
-        public IActionResult GetUser([FromRoute] Guid id)
+        public async Task<IActionResult> GetUser([FromRoute] Guid id)
         {
-            var response = _accountManger.GetUser(id);
+            var response = await _accountManger.GetUserAsync(id);
             if(response.Error != null)
             {
                 return StatusCode(response.Error.ErrorCode, response);

@@ -12,6 +12,7 @@ using Managers.WebSockets;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -74,7 +75,16 @@ namespace MagnisChatAPI
 
             });
 
-            services.AddSingleton<MagnisChatContext>();
+
+           
+            services.AddDbContext<MagnisChatContext>(
+                options =>
+                {
+                    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
+                        b => b.MigrationsAssembly("DataAccessLayer"));
+                }, ServiceLifetime.Singleton);
+
+            //services.AddSingleton<MagnisChatContext>();
             services.AddSingleton<IAccountManager, AccountManager>();
             services.AddTransient<IRoomsManager, RoomsManager>();
             services.AddTransient<IMessageManager, MessageManager>();
@@ -112,6 +122,7 @@ namespace MagnisChatAPI
             });
 
             app.UseAuthentication();
+            InitializeDatabase(app);
 
             var wsOptions = new WebSocketOptions()
             {
@@ -123,6 +134,27 @@ namespace MagnisChatAPI
             app.MapWebSocketManager("/chat", serviceProvider.GetService<ChatHandler>());
 
             app.UseMvc();
+        }
+
+        private void InitializeDatabase(IApplicationBuilder app)
+        {
+            try
+            {
+                using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+                {
+                    serviceScope.ServiceProvider.GetRequiredService<MagnisChatContext>().Database.EnsureCreated();
+                    serviceScope.ServiceProvider.GetRequiredService<MagnisChatContext>().Database.Migrate();
+                }
+            }
+            catch
+            {
+                using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+                {
+                    serviceScope.ServiceProvider.GetRequiredService<MagnisChatContext>().Database.EnsureDeleted();
+                    serviceScope.ServiceProvider.GetRequiredService<MagnisChatContext>().Database.Migrate();
+                }
+            }
+
         }
     }
 }

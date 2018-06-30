@@ -5,6 +5,7 @@ using Common.Enums;
 using DataAccessLayer;
 using Managers.Interfaces;
 using Managers.WebSockets;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -27,23 +28,23 @@ namespace Managers
             _chatHandler = chatHandler;            
         }
 
-        public ResponseDTO<FileDTO> GetFile(Guid fileId)
+        public async Task<ResponseDTO<FileDTO>> GetFileAsync(Guid fileId)
         {
             var response = new ResponseDTO<FileDTO>();
-            var file = _context.Files.Where(f => f.Id == fileId).FirstOrDefault();
+            var file = await _context.Files.FirstOrDefaultAsync(f => f.Id == fileId);
             if (file == null)
             {
                 response.Error = new Error(404, "File not found");
                 return response;
             }
-            response.Data = file;
+            response.Data = new FileDTO(file);
             return response;
         }
 
-        public async Task<ResponseDTO<bool>> UploadPartFile(FilePartDTO filePart, Guid fileId)
+        public async Task<ResponseDTO<bool>> UploadPartFileAsync(FilePartDTO filePart, Guid fileId)
         {
             var response = new ResponseDTO<bool>();
-            var file = _context.Files.FirstOrDefault(f => f.Id == fileId);
+            var file = await _context.Files.FirstOrDefaultAsync(f => f.Id == fileId);
 
             var path = Path.Combine(_path, fileId.ToString() + Path.GetExtension(file.Name));
 
@@ -52,24 +53,24 @@ namespace Managers
                 fs.Write(filePart.Content, 0, filePart.Content.Length);
             }
             file.PartsUploaded++;
+            await _context.SaveChangesAsync();
 
-            var message = _context.Messages.FirstOrDefault(m => m.Id == file.MessageId);
-            var room = _context.Rooms.FirstOrDefault(r => r.Id == message.RoomId);
+            var message = await _context.Messages.Include(m => m.Room).FirstOrDefaultAsync(m => m.Id == file.MessageId);           
 
             var socketMessage = new FileStatusDTO { Id = fileId, MessageId = file.MessageId, PartsUploaded = file.PartsUploaded };
             var socketDTO = new SocketResponseDTO<FileStatusDTO> { Type = SocketMessageTypes.FileStatusChanged, Model = socketMessage };
 
-            foreach (var p in room.Participants)
+            foreach (var p in message.Room.Participants.Select(p => p.UserId))
             {
                 await _chatHandler.SendMessageByUserId(p, socketDTO);
             }
             return response;
         }
 
-        public async Task<ResponseDTO<FilePartDTO>> DownloadPartFile(Guid fileId, int partNumber)
+        public async Task<ResponseDTO<FilePartDTO>> DownloadPartFileAsync(Guid fileId, int partNumber)
         {
             var response = new ResponseDTO<FilePartDTO>();
-            var file = _context.Files.FirstOrDefault(f => f.Id == fileId);
+            var file = await _context.Files.FirstOrDefaultAsync(f => f.Id == fileId);
 
             byte[] buffer;
             var position = (partNumber - 1) * file.PartSize;

@@ -12,7 +12,7 @@ namespace Managers.Interfaces
     {        
         Task<ResponseDTO<FileDTO>> SendFileMessageAsync(FileMessageRequest request, Guid roomId, Guid userId);
         Task<ResponseDTO<bool>> SendTextMessageAsync(TextMessageRequest request, Guid roomId, Guid userId);
-        ResponseDTO<IEnumerable<MessageDTO>> GetMessages(Guid roomId);
+        Task<ResponseDTO<IEnumerable<MessageDTO>>> GetMessagesAsync(Guid roomId);
                
     }
 }

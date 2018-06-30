@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
 using Managers.Interfaces;
 using Common.DTO.Sockets;
+using Microsoft.EntityFrameworkCore;
+using Common.Entities;
 
 namespace Managers
 {
@@ -48,11 +50,11 @@ namespace Managers
             return tokenResponse;
         }
 
-        public ResponseDTO<ClaimsIdentity> GetIdentity(string login, string password)
+        public async Task<ResponseDTO<ClaimsIdentity>> GetIdentityAsync(string login, string password)
         {           
             var response = new ResponseDTO<ClaimsIdentity>();
 
-            var user = _context.Users.FirstOrDefault(p => p.Login == login);
+            var user = await _context.Users.FirstOrDefaultAsync(p => p.Login == login);
             if (user == null)
             {               
                 response.Error = new Error(404, "Invalid username");
@@ -77,23 +79,24 @@ namespace Managers
             return response;
         }
 
-        public ResponseDTO<SocketTokenDTO> GetSocketToken(Guid userId)
+        public async Task<ResponseDTO<SocketTokenDTO>> GetSocketTokenAsync(Guid userId)
         {
-            var token = new SocketTokenDTO
+            var token = new SocketTokenEntity
             {
                 UserId = userId,
                 ExpirationDate = DateTime.UtcNow.Add(TimeSpan.FromDays(7)),
                 Id = Guid.NewGuid()                
             };
 
-            _context.SocketTokens.Add(token);
-            return new ResponseDTO<SocketTokenDTO> { Data = token };
+            await _context.SocketTokens.AddAsync(token);
+            await _context.SaveChangesAsync();
+            return new ResponseDTO<SocketTokenDTO> { Data = new SocketTokenDTO(token) };
         }
 
-        public ResponseDTO<UserProfile> GetUser(Guid userId)
+        public async Task<ResponseDTO<UserProfile>> GetUserAsync(Guid userId)
         {
             var response = new ResponseDTO<UserProfile>();
-            var user = _context.Users.Where(u => u.Id == userId).FirstOrDefault();
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
             if(user == null)
             {
                 response.Error = new Error(404, "User not found");

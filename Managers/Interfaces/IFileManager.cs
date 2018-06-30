@@ -10,8 +10,8 @@ namespace Managers.Interfaces
 {
     public interface IFileManager
     {
-        ResponseDTO<FileDTO> GetFile(Guid fileId);
-        Task<ResponseDTO<bool>> UploadPartFile(FilePartDTO file, Guid fileId);
-        Task<ResponseDTO<FilePartDTO>> DownloadPartFile(Guid fileId, int partNumber);
+        Task<ResponseDTO<FileDTO>> GetFileAsync(Guid fileId);
+        Task<ResponseDTO<bool>> UploadPartFileAsync(FilePartDTO file, Guid fileId);
+        Task<ResponseDTO<FilePartDTO>> DownloadPartFileAsync(Guid fileId, int partNumber);
     }
 }

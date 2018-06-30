@@ -13,8 +13,8 @@ namespace Managers.Interfaces
     public interface IAccountManager
     {
         TokenResponse GetToken(ClaimsIdentity identity);
-        ResponseDTO<ClaimsIdentity> GetIdentity(string login, string password);
-        ResponseDTO<SocketTokenDTO> GetSocketToken(Guid userId);
-        ResponseDTO<UserProfile> GetUser(Guid userId);
+        Task<ResponseDTO<ClaimsIdentity>> GetIdentityAsync(string login, string password);
+        Task<ResponseDTO<SocketTokenDTO>> GetSocketTokenAsync(Guid userId);
+        Task<ResponseDTO<UserProfile>> GetUserAsync(Guid userId);
     }
 }

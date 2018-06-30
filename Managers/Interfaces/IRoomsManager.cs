@@ -11,9 +11,9 @@ namespace Managers.Interfaces
     public interface IRoomsManager
     {
         Task<ResponseDTO<Guid>> CreateRoomAsync(RoomRequest request, Guid userId);
-        ResponseDTO<IEnumerable<RoomDTO>> GetAllRooms();
-        ResponseDTO<IEnumerable<RoomDTO>> GetUserRooms(Guid userId);
-        ResponseDTO<IEnumerable<RoomDTO>> GetOtherRooms(Guid userId);
+        Task<ResponseDTO<IEnumerable<RoomDTO>>> GetAllRoomsAsync();
+        Task<ResponseDTO<IEnumerable<RoomDTO>>> GetUserRoomsAsync(Guid userId);
+        Task<ResponseDTO<IEnumerable<RoomDTO>>> GetOtherRoomsAsync(Guid userId);
         Task<ResponseDTO<bool>> ParticipateRoomAsync(Guid roomId, Guid userId);
         Task<ResponseDTO<bool>> LeaveRoomAsync(Guid roomId, Guid userId);
     }

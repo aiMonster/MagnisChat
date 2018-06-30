@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,10 +17,10 @@ namespace Common.DTO.Account
 
         }
 
-        public UserProfile(UserDTO dto)
+        public UserProfile(UserEntity entity)
         {
-            Id = dto.Id;
-            Login = dto.Login;
+            Id = entity.Id;
+            Login = entity.Login;
         }
     }
 }

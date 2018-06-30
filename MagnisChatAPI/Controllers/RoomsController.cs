@@ -32,23 +32,23 @@ namespace MagnisChatAPI.Controllers
 
         #region Rooms
         [HttpGet]    
-        public IActionResult GetAllRooms()
+        public async Task<IActionResult> GetAllRooms()
         {
-            var response = _roomManager.GetAllRooms();
+            var response = await _roomManager.GetAllRoomsAsync();
             return Ok(response);
         }
        
         [HttpGet("My")]        
-        public IActionResult GetUserRooms()
+        public async Task<IActionResult> GetUserRooms()
         {            
-            var response =  _roomManager.GetUserRooms(GetUserId());
+            var response = await _roomManager.GetUserRoomsAsync(GetUserId());
             return Ok(response);
         }
 
         [HttpGet("Other")]
-        public IActionResult GetOtherRooms()
+        public async Task<IActionResult> GetOtherRooms()
         {            
-            var response = _roomManager.GetOtherRooms(GetUserId());
+            var response = await _roomManager.GetOtherRoomsAsync(GetUserId());
             return Ok(response);
         }
 
@@ -114,9 +114,9 @@ namespace MagnisChatAPI.Controllers
         }
 
         [HttpGet("{id}/Messages")]
-        public IActionResult GetMessages([FromRoute] Guid id)
+        public async Task<IActionResult> GetMessages([FromRoute] Guid id)
         {
-            var response = _messageManager.GetMessages(id);
+            var response = await _messageManager.GetMessagesAsync(id);
 
             if (response.Error != null)
             {
